@@ -15,15 +15,42 @@ import (
 // Config wraps viper.Viper for configuration management
 type Config struct {
 	*viper.Viper
+	embedFS    embed.FS
+	configPath string
+	values     map[string]any
 }
 
-// NewConfig creates a new Config instance by loading configuration files from an embedded filesystem.
-// It loads all YAML files from the root of the configs folder and merges them.
-// If ORYN_ENV environment variable is set, it also loads and merges files from the configs/{ORYN_ENV} folder.
+// Option is a functional option for configuring Config
+type Option func(*Config) error
+
+// WithEmbedFS sets the embedded filesystem and the base path for config files.
+// The path parameter specifies the folder name in the embedded filesystem (e.g., "configs", "config").
+// Example: WithEmbedFS(configFS, "configs") will load files from the "configs" folder in the embedded FS.
+func WithEmbedFS(fs embed.FS, path string) Option {
+	return func(c *Config) error {
+		c.embedFS = fs
+		c.configPath = path
+		return nil
+	}
+}
+
+// WithValues sets configuration values programmatically.
+// These values are merged after loading config files but can be overridden by environment variables.
+// Example: WithValues(map[string]any{"database.host": "localhost", "database.port": 5432})
+func WithValues(values map[string]any) Option {
+	return func(c *Config) error {
+		c.values = values
+		return nil
+	}
+}
+
+// NewConfig creates a new Config instance with optional configuration.
+// If no embedded filesystem is provided via WithEmbedFS, config loading will be skipped.
+// If ORYN_ENV environment variable is set, it also loads and merges files from the {configPath}/{ORYN_ENV} folder.
 // For example: ORYN_ENV=prod loads from configs/prod, ORYN_ENV=test loads from configs/test.
 // Environment variables with ORYN_ prefix can override any config value.
 // Example: ORYN_LOGS_LEVEL=info will override logs.level
-func NewConfig(configFS embed.FS) (*Config, error) {
+func NewConfig(opts ...Option) (*Config, error) {
 	v := viper.New()
 	v.SetConfigType("yaml")
 
@@ -33,21 +60,43 @@ func NewConfig(configFS embed.FS) (*Config, error) {
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	v.AutomaticEnv()
 
-	// Load all YAML files from root configs directory
-	if err := loadConfigFiles(v, configFS, "configs", false); err != nil {
-		return nil, fmt.Errorf("failed to load root configs files: %w", err)
+	cfg := &Config{
+		Viper:      v,
+		configPath: "configs", // default
 	}
 
-	// Check if ORYN_ENV is set and load environment-specific config files
-	if env := os.Getenv("ORYN_ENV"); env != "" {
-		envConfigPath := filepath.Join("configs", env)
-		// Load and merge environment-specific config files
-		if err := loadConfigFiles(v, configFS, envConfigPath, true); err != nil {
-			return nil, fmt.Errorf("failed to load %s config files: %w", env, err)
+	// Apply options
+	for _, opt := range opts {
+		if err := opt(cfg); err != nil {
+			return nil, fmt.Errorf("failed to apply option: %w", err)
 		}
 	}
 
-	return &Config{Viper: v}, nil
+	// Load config files if embedFS is provided
+	if cfg.embedFS != (embed.FS{}) {
+		// Load all YAML files from root config directory
+		if err := loadConfigFiles(cfg.Viper, cfg.embedFS, cfg.configPath, false); err != nil {
+			return nil, fmt.Errorf("failed to load root config files: %w", err)
+		}
+
+		// Check if ORYN_ENV is set and load environment-specific config files
+		if env := os.Getenv("ORYN_ENV"); env != "" {
+			envConfigPath := filepath.Join(cfg.configPath, env)
+			// Load and merge environment-specific config files
+			if err := loadConfigFiles(cfg.Viper, cfg.embedFS, envConfigPath, true); err != nil {
+				return nil, fmt.Errorf("failed to load %s config files: %w", env, err)
+			}
+		}
+	}
+
+	// Merge programmatically provided values
+	if cfg.values != nil {
+		if err := cfg.Viper.MergeConfigMap(cfg.values); err != nil {
+			return nil, fmt.Errorf("failed to merge provided values: %w", err)
+		}
+	}
+
+	return cfg, nil
 }
 
 // loadConfigFiles loads all YAML files from the specified directory in the embedded filesystem

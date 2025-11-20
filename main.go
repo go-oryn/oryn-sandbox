@@ -14,7 +14,10 @@ var configFS embed.FS
 func main() {
 	// Load configuration from embedded filesystem
 	// Set ORYN_ENV=prod to load production overrides
-	cfg, err := config.NewConfig(configFS)
+	cfg, err := config.NewConfig(
+		config.WithEmbedFS(configFS, "configs"),
+		config.WithValues(map[string]interface{}{"foo.bar.baz": 123}),
+	)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading config: %v\n", err)
 		os.Exit(1)
@@ -35,6 +38,9 @@ func main() {
 	fmt.Printf("Port: %d\n", cfg.GetInt("database.port"))
 	fmt.Printf("Name: %s\n", cfg.GetString("database.name"))
 	fmt.Printf("User: %s\n", cfg.GetString("database.user"))
+
+	fmt.Println("\n=== Foo Configuration ===")
+	fmt.Printf("Foo: %d\n", cfg.GetInt("foo.bar.baz"))
 
 	fmt.Println("\n=== App Configuration (with placeholders) ===")
 	fmt.Printf("Name: %s\n", cfg.GetString("app.name"))

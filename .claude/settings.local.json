@@ -15,7 +15,12 @@
       "Bash(ORYN_ENV=prod APP_NAME=\"Test\" APP_PORT=\"0\" APP_DEBUG=\"false\" APP_MAX_CONNECTIONS=\"0\" go run:*)",
       "Bash(ORYN_ENV=test go run:*)",
       "Bash(ORYN_ENV=staging go run:*)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(ORYN_ENV=prod APP_NAME=\"Test App\" APP_VERSION=\"2.0.0\" go run:*)",
+      "Bash(ORYN_DATABASE_HOST=localhost go run:*)",
+      "Bash(ORYN_ENV=prod APP_NAME=\"My App\" APP_VERSION=\"3.0.0\" go run:*)",
+      "Bash(ORYN_DATABASE_HOST=env-override go run:*)",
+      "Bash(ORYN_DATABASE_HOST=env-value go run:*)"
     ],
     "deny": [],
     "ask": []
