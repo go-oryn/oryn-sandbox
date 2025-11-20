@@ -1,8 +1,0 @@
-http:
-  host: localhost
-  port: 8080
-  timeout: 30s
-  tls:
-    enabled: false
-    cert_file: ""
-    key_file: ""

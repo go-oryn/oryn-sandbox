@@ -1,9 +1,0 @@
-logs:
-  level: info
-  format: json
-  output: stdout
-  file:
-    path: /var/log/app.log
-    max_size: 100
-    max_backups: 3
-    max_age: 28

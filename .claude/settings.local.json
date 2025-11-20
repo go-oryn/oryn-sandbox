@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go mod tidy:*)",
+      "Bash(go run:*)",
+      "Bash(cat:*)",
+      "Bash(ORYN_ENV=prod go run:*)",
+      "Bash(ORYN_LOGS_LEVEL=error go run:*)",
+      "Bash(ORYN_DATABASE_HOST=custom-host ORYN_HTTP_SERVER_ADDRESS=:9000 go run:*)",
+      "Bash(ORYN_ENV=prod ORYN_LOGS_LEVEL=warn go run:*)",
+      "Bash(ORYN_ENV=prod APP_NAME=\"Oryn Sandbox\" AUTHOR_EMAIL_1=\"john@example.com\" AUTHOR_EMAIL_2=\"jane@example.com\" go run:*)",
+      "Bash(ORYN_ENV=prod APP_NAME=\"Oryn Sandbox\" AUTHOR_EMAIL_1=\"john@example.com\" go run:*)",
+      "Bash(ORYN_ENV=prod APP_NAME=\"Oryn Sandbox\" AUTHOR_EMAIL_1=\"john@example.com\" AUTHOR_EMAIL_2=\"jane@example.com\" APP_VERSION=\"1.0.0\" APP_PORT=\"8080\" APP_DEBUG=\"true\" APP_MAX_CONNECTIONS=\"100\" go run:*)",
+      "Bash(ORYN_ENV=prod APP_NAME=\"Oryn Sandbox\" APP_PORT=\"3000\" APP_DEBUG=\"false\" go run:*)",
+      "Bash(ORYN_ENV=prod APP_NAME=\"Test\" APP_PORT=\"0\" APP_DEBUG=\"false\" APP_MAX_CONNECTIONS=\"0\" go run:*)",
+      "Bash(ORYN_ENV=test go run:*)",
+      "Bash(ORYN_ENV=staging go run:*)",
+      "Bash(git mv:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
