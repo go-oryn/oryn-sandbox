@@ -1,0 +1,7 @@
+{
+  "database": {
+    "host": "test-db-host",
+    "user": "test-user",
+    "password": "test-password"
+  }
+}

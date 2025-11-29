@@ -1,0 +1,13 @@
+{
+  "app": {
+    "name": "${APP_NAME}",
+    "authors": [
+      "${AUTHOR_EMAIL_1}",
+      "${AUTHOR_EMAIL_2}"
+    ],
+    "version": "${APP_VERSION}",
+    "port": "${APP_PORT}",
+    "debug": "${APP_DEBUG}",
+    "maxConnections": "${APP_MAX_CONNECTIONS}"
+  }
+}

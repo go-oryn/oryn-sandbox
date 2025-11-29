@@ -28,7 +28,6 @@ type options struct {
 // NewConfig creates a new Config instance with optional configuration.
 func NewConfig(opts ...Option) (*Config, error) {
 	v := viper.New()
-	v.SetConfigType("yaml")
 
 	// Configure environment variable support
 	v.SetEnvPrefix("ORYN")
@@ -65,7 +64,7 @@ func NewConfig(opts ...Option) (*Config, error) {
 		}
 	}
 
-	// Merge programmatically provided values if any
+	// Merge programmatically provided values if any provided
 	if cfg.values != nil {
 		if err := cfg.Viper.MergeConfigMap(cfg.values); err != nil {
 			return nil, fmt.Errorf("failed to merge provided values: %w", err)
@@ -75,11 +74,11 @@ func NewConfig(opts ...Option) (*Config, error) {
 	return cfg, nil
 }
 
-// loadConfigFiles loads all YAML files from the specified directory in the embedded filesystem
+// loadConfigFiles loads all files from the specified directory in the embedded filesystem
 func loadConfigFiles(v *viper.Viper, configFS embed.FS, dir string) error {
 	entries, err := fs.ReadDir(configFS, dir)
 	if err != nil {
-		// If the directory doesn't exist (e.g., prod folder), that's okay
+		// If the directory doesn't exist (e.g., prod folder), returns without error
 		if os.IsNotExist(err) {
 			return nil
 		}
@@ -87,14 +86,28 @@ func loadConfigFiles(v *viper.Viper, configFS embed.FS, dir string) error {
 		return fmt.Errorf("failed to read directory %s: %w", dir, err)
 	}
 
+	// Compile a regexp to match environment variable placeholders
+	envVarPattern, err := regexp.Compile(`\$\{([^}]+)\}`)
+	if err != nil {
+		return fmt.Errorf("failed to compile env var pattern: %w", err)
+	}
+
 	for _, entry := range entries {
-		// Skip directories and non-YAML files
+		// Skip directories
 		if entry.IsDir() {
 			continue
 		}
 
 		fileName := entry.Name()
-		if !strings.HasSuffix(fileName, ".yaml") && !strings.HasSuffix(fileName, ".yml") {
+
+		// Detect file format based on extension
+		var configType string
+		if strings.HasSuffix(fileName, ".yaml") || strings.HasSuffix(fileName, ".yml") {
+			configType = "yaml"
+		} else if strings.HasSuffix(fileName, ".json") {
+			configType = "json"
+		} else {
+			// Skip unsupported file types
 			continue
 		}
 
@@ -106,11 +119,6 @@ func loadConfigFiles(v *viper.Viper, configFS embed.FS, dir string) error {
 		}
 
 		// Resolve environment variable placeholders matching for example ${ENV_VAR}
-		envVarPattern, err := regexp.Compile(`\$\{([^}]+)\}`)
-		if err != nil {
-			return fmt.Errorf("failed to compile env var pattern: %w", err)
-		}
-
 		resolvedData := envVarPattern.ReplaceAllStringFunc(string(data), func(match string) string {
 			// Extract the env var name from the placeholder
 			envVar := envVarPattern.FindStringSubmatch(match)
@@ -118,11 +126,14 @@ func loadConfigFiles(v *viper.Viper, configFS embed.FS, dir string) error {
 				return ""
 			}
 
-			// Returns the environment variable value, if not set, return empty string
+			// Returns the environment variable value, if not set, returns empty string
 			return os.Getenv(envVar[1])
 		})
 
-		// Merge config from file
+		// Set the config type
+		v.SetConfigType(configType)
+
+		// Merge the config
 		if err := v.MergeConfig(strings.NewReader(resolvedData)); err != nil {
 			return fmt.Errorf("failed to merge config from %s: %w", filePath, err)
 		}

@@ -11,11 +11,14 @@ import (
 //go:embed configs
 var configFS embed.FS
 
+//go:embed configs-json
+var configJSONFS embed.FS
+
 func main() {
 	// Load configuration from embedded filesystem
 	// Set ORYN_ENV=prod to load production overrides
 	cfg, err := config.NewConfig(
-		config.WithEmbedFS(configFS, "configs"),
+		config.WithEmbedFS(configJSONFS, "configs-json"),
 		config.WithValues(map[string]interface{}{"foo.bar.baz": 123}),
 	)
 	if err != nil {
