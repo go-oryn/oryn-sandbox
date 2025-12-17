@@ -2,21 +2,6 @@ package config
 
 import "time"
 
-// GetIntOrDefault returns the value associated with the key as an integer.
-// If the key is not found or the value is zero, it returns the provided default value.
-func (c *Config) GetIntOrDefault(key string, defaultValue int) int {
-	if !c.IsSet(key) {
-		return defaultValue
-	}
-
-	value := c.GetInt(key)
-	if value == 0 {
-		return defaultValue
-	}
-
-	return value
-}
-
 // GetStringOrDefault returns the value associated with the key as a string.
 // If the key is not found or the value is empty, it returns the provided default value.
 func (c *Config) GetStringOrDefault(key string, defaultValue string) string {
@@ -26,6 +11,66 @@ func (c *Config) GetStringOrDefault(key string, defaultValue string) string {
 
 	value := c.GetString(key)
 	if value == "" {
+		return defaultValue
+	}
+
+	return value
+}
+
+// GetStringSliceOrDefault returns the value associated with the key as a slice of strings.
+// If the key is not found or the value is nil/empty, it returns the provided default value.
+func (c *Config) GetStringSliceOrDefault(key string, defaultValue []string) []string {
+	if !c.IsSet(key) {
+		return defaultValue
+	}
+
+	value := c.GetStringSlice(key)
+	if len(value) == 0 {
+		return defaultValue
+	}
+
+	return value
+}
+
+// GetStringMapOrDefault returns the value associated with the key as a map of interfaces.
+// If the key is not found or the value is nil/empty, it returns the provided default value.
+func (c *Config) GetStringMapOrDefault(key string, defaultValue map[string]interface{}) map[string]interface{} {
+	if !c.IsSet(key) {
+		return defaultValue
+	}
+
+	value := c.GetStringMap(key)
+	if len(value) == 0 {
+		return defaultValue
+	}
+
+	return value
+}
+
+// GetStringMapStringOrDefault returns the value associated with the key as a map of strings.
+// If the key is not found or the value is nil/empty, it returns the provided default value.
+func (c *Config) GetStringMapStringOrDefault(key string, defaultValue map[string]string) map[string]string {
+	if !c.IsSet(key) {
+		return defaultValue
+	}
+
+	value := c.GetStringMapString(key)
+	if len(value) == 0 {
+		return defaultValue
+	}
+
+	return value
+}
+
+// GetStringMapStringSliceOrDefault returns the value associated with the key as a map of string slices.
+// If the key is not found or the value is nil/empty, it returns the provided default value.
+func (c *Config) GetStringMapStringSliceOrDefault(key string, defaultValue map[string][]string) map[string][]string {
+	if !c.IsSet(key) {
+		return defaultValue
+	}
+
+	value := c.GetStringMapStringSlice(key)
+	if len(value) == 0 {
 		return defaultValue
 	}
 
@@ -57,6 +102,21 @@ func (c *Config) GetFloat64OrDefault(key string, defaultValue float64) float64 {
 	return value
 }
 
+// GetIntOrDefault returns the value associated with the key as an integer.
+// If the key is not found or the value is zero, it returns the provided default value.
+func (c *Config) GetIntOrDefault(key string, defaultValue int) int {
+	if !c.IsSet(key) {
+		return defaultValue
+	}
+
+	value := c.GetInt(key)
+	if value == 0 {
+		return defaultValue
+	}
+
+	return value
+}
+
 // GetInt32OrDefault returns the value associated with the key as an int32.
 // If the key is not found or the value is zero, it returns the provided default value.
 func (c *Config) GetInt32OrDefault(key string, defaultValue int32) int32 {
@@ -81,6 +141,21 @@ func (c *Config) GetInt64OrDefault(key string, defaultValue int64) int64 {
 
 	value := c.GetInt64(key)
 	if value == 0 {
+		return defaultValue
+	}
+
+	return value
+}
+
+// GetIntSliceOrDefault returns the value associated with the key as a slice of ints.
+// If the key is not found or the value is nil/empty, it returns the provided default value.
+func (c *Config) GetIntSliceOrDefault(key string, defaultValue []int) []int {
+	if !c.IsSet(key) {
+		return defaultValue
+	}
+
+	value := c.GetIntSlice(key)
+	if len(value) == 0 {
 		return defaultValue
 	}
 
@@ -166,81 +241,6 @@ func (c *Config) GetDurationOrDefault(key string, defaultValue time.Duration) ti
 
 	value := c.GetDuration(key)
 	if value == 0 {
-		return defaultValue
-	}
-
-	return value
-}
-
-// GetStringSliceOrDefault returns the value associated with the key as a slice of strings.
-// If the key is not found or the value is nil/empty, it returns the provided default value.
-func (c *Config) GetStringSliceOrDefault(key string, defaultValue []string) []string {
-	if !c.IsSet(key) {
-		return defaultValue
-	}
-
-	value := c.GetStringSlice(key)
-	if len(value) == 0 {
-		return defaultValue
-	}
-
-	return value
-}
-
-// GetIntSliceOrDefault returns the value associated with the key as a slice of ints.
-// If the key is not found or the value is nil/empty, it returns the provided default value.
-func (c *Config) GetIntSliceOrDefault(key string, defaultValue []int) []int {
-	if !c.IsSet(key) {
-		return defaultValue
-	}
-
-	value := c.GetIntSlice(key)
-	if len(value) == 0 {
-		return defaultValue
-	}
-
-	return value
-}
-
-// GetStringMapOrDefault returns the value associated with the key as a map of interfaces.
-// If the key is not found or the value is nil/empty, it returns the provided default value.
-func (c *Config) GetStringMapOrDefault(key string, defaultValue map[string]interface{}) map[string]interface{} {
-	if !c.IsSet(key) {
-		return defaultValue
-	}
-
-	value := c.GetStringMap(key)
-	if len(value) == 0 {
-		return defaultValue
-	}
-
-	return value
-}
-
-// GetStringMapStringOrDefault returns the value associated with the key as a map of strings.
-// If the key is not found or the value is nil/empty, it returns the provided default value.
-func (c *Config) GetStringMapStringOrDefault(key string, defaultValue map[string]string) map[string]string {
-	if !c.IsSet(key) {
-		return defaultValue
-	}
-
-	value := c.GetStringMapString(key)
-	if len(value) == 0 {
-		return defaultValue
-	}
-
-	return value
-}
-
-// GetStringMapStringSliceOrDefault returns the value associated with the key as a map of string slices.
-// If the key is not found or the value is nil/empty, it returns the provided default value.
-func (c *Config) GetStringMapStringSliceOrDefault(key string, defaultValue map[string][]string) map[string][]string {
-	if !c.IsSet(key) {
-		return defaultValue
-	}
-
-	value := c.GetStringMapStringSlice(key)
-	if len(value) == 0 {
 		return defaultValue
 	}
 

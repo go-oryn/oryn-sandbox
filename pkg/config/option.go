@@ -5,13 +5,11 @@ import "embed"
 // Option is a functional option for configuring Config
 type Option func(*Config) error
 
-// WithEmbedFS sets the embedded filesystem and the base path for config files.
-// The path parameter specifies the folder name in the embedded filesystem (e.g., "configs", "config").
-// Example: WithEmbedFS(configFS, "configs") will load files from the "configs" folder in the embedded FS.
-func WithEmbedFS(fs embed.FS, path string) Option {
+// WithEmbedFS sets the embedded filesystem for the config files.
+// Example: WithEmbedFS(configFS) will load files from the provided FS.
+func WithEmbedFS(fs embed.FS) Option {
 	return func(c *Config) error {
 		c.embedFS = fs
-		c.embedFSPath = path
 
 		return nil
 	}

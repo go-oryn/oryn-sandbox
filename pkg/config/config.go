@@ -20,9 +20,8 @@ type Config struct {
 
 // options holds configuration options for Config
 type options struct {
-	embedFS     embed.FS
-	embedFSPath string
-	values      map[string]any
+	embedFS embed.FS
+	values  map[string]any
 }
 
 // NewConfig creates a new Config instance with optional configuration.
@@ -37,34 +36,31 @@ func NewConfig(opts ...Option) (*Config, error) {
 	// Initialize the config instance
 	cfg := &Config{
 		Viper: v,
-		options: options{
-			embedFSPath: "configs", // default
-		},
 	}
 
 	// Apply options
 	for _, opt := range opts {
 		if err := opt(cfg); err != nil {
-			return nil, fmt.Errorf("failed to apply option: %w", err)
+			return nil, fmt.Errorf("failed to apply config option: %w", err)
 		}
 	}
 
 	// Load config files if embedFS is provided
 	if cfg.embedFS != (embed.FS{}) {
 		// Load all YAML files from the root config directory
-		if err := loadConfigFiles(cfg.Viper, cfg.embedFS, cfg.embedFSPath); err != nil {
+		if err := loadConfigFiles(cfg.Viper, cfg.embedFS, "."); err != nil {
 			return nil, fmt.Errorf("failed to load root config files: %w", err)
 		}
 
 		// Check if ORYN_ENV is set and load environment-specific config files
 		if env := os.Getenv("ORYN_ENV"); env != "" {
-			if err := loadConfigFiles(cfg.Viper, cfg.embedFS, filepath.Join(cfg.embedFSPath, env)); err != nil {
+			if err := loadConfigFiles(cfg.Viper, cfg.embedFS, filepath.Join(".", env)); err != nil {
 				return nil, fmt.Errorf("failed to load %s config files: %w", env, err)
 			}
 		}
 	}
 
-	// Merge programmatically provided values if any provided
+	// Merge programmatically provided values if any
 	if cfg.values != nil {
 		if err := cfg.Viper.MergeConfigMap(cfg.values); err != nil {
 			return nil, fmt.Errorf("failed to merge provided values: %w", err)
@@ -75,15 +71,15 @@ func NewConfig(opts ...Option) (*Config, error) {
 }
 
 // loadConfigFiles loads all files from the specified directory in the embedded filesystem
-func loadConfigFiles(v *viper.Viper, configFS embed.FS, dir string) error {
-	entries, err := fs.ReadDir(configFS, dir)
+func loadConfigFiles(v *viper.Viper, configFS embed.FS, configFSDir string) error {
+	entries, err := fs.ReadDir(configFS, configFSDir)
 	if err != nil {
 		// If the directory doesn't exist (e.g., prod folder), returns without error
 		if os.IsNotExist(err) {
 			return nil
 		}
 
-		return fmt.Errorf("failed to read directory %s: %w", dir, err)
+		return fmt.Errorf("failed to read directory %s: %w", configFSDir, err)
 	}
 
 	// Compile a regexp to match environment variable placeholders
@@ -100,7 +96,7 @@ func loadConfigFiles(v *viper.Viper, configFS embed.FS, dir string) error {
 
 		fileName := entry.Name()
 
-		// Detect file format based on extension
+		// Detect the file format based on extension
 		var configType string
 		if strings.HasSuffix(fileName, ".yaml") || strings.HasSuffix(fileName, ".yml") {
 			configType = "yaml"
@@ -112,7 +108,7 @@ func loadConfigFiles(v *viper.Viper, configFS embed.FS, dir string) error {
 		}
 
 		// Read the file content
-		filePath := filepath.Join(dir, fileName)
+		filePath := filepath.Join(configFSDir, fileName)
 		data, err := fs.ReadFile(configFS, filePath)
 		if err != nil {
 			return fmt.Errorf("failed to read file %s: %w", filePath, err)
