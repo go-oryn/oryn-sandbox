@@ -4,13 +4,11 @@ import "go.uber.org/fx"
 
 const ModuleName = "config"
 
-var (
-	ConfigModule = fx.Module(
-		ModuleName,
-		fx.Provide(
-			ProvideConfig,
-		),
-	)
+var Module = fx.Module(
+	ModuleName,
+	fx.Provide(
+		ProvideConfig,
+	),
 )
 
 type ProvideConfigParams struct {

@@ -1,3 +1,0 @@
-http:
-  server:
-    address: ":8080"

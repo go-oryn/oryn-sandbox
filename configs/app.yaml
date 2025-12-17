@@ -1,4 +1,3 @@
 app:
-  name: oryn
-  authors:
-    - ekkinox@gmail.com
+  name: oryn-sandbox
+  version: 0.0.1

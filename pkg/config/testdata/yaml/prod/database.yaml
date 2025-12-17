@@ -1,4 +1,0 @@
-database:
-  host: production
-  user: production-user
-  password: production-password
