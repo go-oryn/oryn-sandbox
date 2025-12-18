@@ -53,10 +53,10 @@ func ProvideTracerProvider(params ProvideTracerProviderParams) *sdktrace.TracerP
 
 type ProvideTracerParams struct {
 	fx.In
-	TracerProvider trace.TracerProvider
-	Options        []trace.TracerOption `group:"trace-tracer-options"`
+	Provider trace.TracerProvider
+	Options  []trace.TracerOption `group:"trace-tracer-options"`
 }
 
 func ProvideTracer(params ProvideTracerParams) trace.Tracer {
-	return params.TracerProvider.Tracer("github.com/go-oryn/oryn", params.Options...)
+	return params.Provider.Tracer("github.com/go-oryn/oryn", params.Options...)
 }

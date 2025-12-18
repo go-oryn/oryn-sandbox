@@ -1,0 +1,40 @@
+services:
+  oryn-app:
+    container_name: oryn-app
+    depends_on:
+      - oryn-lgtm
+    build:
+      dockerfile: Dockerfile
+      context: .
+    networks:
+      - oryn-sandbox
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+
+  oryn-lgtm:
+    container_name: oryn-lgtm
+    image: grafana/otel-lgtm:latest
+    networks:
+      - oryn-sandbox
+    ports:
+      - "3000:3000"
+      - "4317:4317"
+      - "9090:9090"
+    environment:
+      - GF_LOG_LEVEL=info
+    volumes:
+      - oryn-lgtm-data:/var/lib/grafana
+
+volumes:
+  oryn-lgtm-data:
+    driver: local
+
+networks:
+  oryn-sandbox:
+    driver: bridge
