@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-oryn/oryn-sandbox/pkg/core/config"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
@@ -51,6 +52,8 @@ func ProvideTracerProvider(params ProvideTracerProviderParams) (*sdktrace.Tracer
 			return tp.Shutdown(ctx)
 		},
 	})
+
+	otel.SetTracerProvider(tp)
 
 	return tp, nil
 }

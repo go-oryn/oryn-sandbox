@@ -21,7 +21,8 @@
       "Bash(ORYN_ENV=prod APP_NAME=\"My App\" APP_VERSION=\"3.0.0\" go run:*)",
       "Bash(ORYN_DATABASE_HOST=env-override go run:*)",
       "Bash(ORYN_DATABASE_HOST=env-value go run:*)",
-      "Bash(go test:*)"
+      "Bash(go test:*)",
+      "Bash(go build:*)"
     ],
     "deny": [],
     "ask": []

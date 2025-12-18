@@ -40,6 +40,7 @@ func main() {
 					ctx, span := tracer.Start(context.Background(), fmt.Sprintf("span-%d", time.Now().UnixNano()))
 					span.End()
 
+					logger.DebugContext(ctx, "some log debug level")
 					logger.InfoContext(ctx, "some log info level")
 
 					fmt.Printf("App name: %s, app env: %s\n", cfg.GetString("app.name"), cfg.Env())

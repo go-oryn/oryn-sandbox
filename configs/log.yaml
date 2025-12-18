@@ -1,5 +1,6 @@
 log:
   level: info
+  source: true
   exporters:
     stdout:
       enabled: true

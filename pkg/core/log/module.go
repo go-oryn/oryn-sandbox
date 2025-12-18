@@ -8,6 +8,7 @@ import (
 	"github.com/go-oryn/oryn-sandbox/pkg/core/config"
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/otel/log"
+	"go.opentelemetry.io/otel/log/global"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.uber.org/fx"
@@ -54,12 +55,15 @@ func ProvideLoggerProvider(params ProvideLoggerProviderParams) (*sdklog.LoggerPr
 		},
 	})
 
+	global.SetLoggerProvider(lp)
+
 	return lp, nil
 }
 
 type ProvideLoggerParams struct {
 	fx.In
 	LifeCycle fx.Lifecycle
+	Config    *config.Config
 	Provider  log.LoggerProvider
 	Options   []otelslog.Option `group:"log-logger-options"`
 }
@@ -67,7 +71,13 @@ type ProvideLoggerParams struct {
 func ProvideLogger(params ProvideLoggerParams) *slog.Logger {
 	opts := []otelslog.Option{
 		otelslog.WithLoggerProvider(params.Provider),
+		otelslog.WithSource(params.Config.GetBool("log.source")),
 	}
 
-	return otelslog.NewLogger("github.com/go-oryn/oryn", append(opts, params.Options...)...)
+	handler := otelslog.NewHandler("github.com/go-oryn/oryn", append(opts, params.Options...)...)
+
+	return slog.New(NewLeveledHandler(
+		ParseLogLevel(params.Config.GetString("log.level")),
+		handler,
+	))
 }
