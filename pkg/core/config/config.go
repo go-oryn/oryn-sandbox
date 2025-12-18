@@ -43,15 +43,15 @@ func NewConfig(opts ...Option) (*Config, error) {
 	}
 
 	// Load config files if embedFS is provided
-	if options.embedFS != (embed.FS{}) {
+	if options.embedFS != nil {
 		// Load all YAML files from the root config directory
-		if err := loadConfigFiles(v, options.embedFS, "."); err != nil {
+		if err := loadConfigFiles(v, *options.embedFS, "."); err != nil {
 			return nil, fmt.Errorf("failed to load embed root config files: %w", err)
 		}
 
 		// Check if ORYN_ENV is set and load environment-specific config files
 		if options.env != "" {
-			if err := loadConfigFiles(v, options.embedFS, filepath.Join(".", options.env)); err != nil {
+			if err := loadConfigFiles(v, *options.embedFS, filepath.Join(".", options.env)); err != nil {
 				return nil, fmt.Errorf("failed to load embed %s config files: %w", options.env, err)
 			}
 		}

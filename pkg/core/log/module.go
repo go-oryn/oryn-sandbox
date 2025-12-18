@@ -2,8 +2,10 @@ package log
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
+	"github.com/go-oryn/oryn-sandbox/pkg/core/config"
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/otel/log"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
@@ -28,16 +30,18 @@ var Module = fx.Module(
 type ProvideLoggerProviderParams struct {
 	fx.In
 	LifeCycle fx.Lifecycle
+	Config    *config.Config
 	Resource  *resource.Resource
 	Options   []sdklog.LoggerProviderOption `group:"log-provider-options"`
 }
 
-func ProvideLoggerProvider(params ProvideLoggerProviderParams) *sdklog.LoggerProvider {
-	opts := []sdklog.LoggerProviderOption{
-		sdklog.WithResource(params.Resource),
+func ProvideLoggerProvider(params ProvideLoggerProviderParams) (*sdklog.LoggerProvider, error) {
+	lpOpts, err := LoggerProviderOptions(context.Background(), params.Config, params.Resource, params.Options...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create logger provider options: %w", err)
 	}
 
-	lp := sdklog.NewLoggerProvider(append(opts, params.Options...)...)
+	lp := sdklog.NewLoggerProvider(lpOpts...)
 
 	params.LifeCycle.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
@@ -50,7 +54,7 @@ func ProvideLoggerProvider(params ProvideLoggerProviderParams) *sdklog.LoggerPro
 		},
 	})
 
-	return lp
+	return lp, nil
 }
 
 type ProvideLoggerParams struct {

@@ -4,7 +4,7 @@ import "embed"
 
 type Options struct {
 	env     string
-	embedFS embed.FS
+	embedFS *embed.FS
 	values  map[string]any
 }
 
@@ -20,7 +20,7 @@ func WithEnvironment(env string) Option {
 
 func WithEmbedFS(fs embed.FS) Option {
 	return func(o *Options) error {
-		o.embedFS = fs
+		o.embedFS = &fs
 
 		return nil
 	}

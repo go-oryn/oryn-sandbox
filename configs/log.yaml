@@ -1,0 +1,12 @@
+log:
+  level: info
+  exporters:
+    stdout:
+      enabled: true
+      options:
+        pretty_print: false
+    otlp_grpc:
+      enabled: true
+      options:
+        endpoint: ${OTLP_GRPC_ENDPOINT}
+        insecure: true

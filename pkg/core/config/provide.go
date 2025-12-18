@@ -11,7 +11,6 @@ func AsConfigOptions(options ...Option) fx.Option {
 		fxOptions = append(fxOptions, fx.Supply(
 			fx.Annotate(
 				opt,
-				fx.As(new(Option)),
 				fx.ResultTags(`group:"config-options"`),
 			),
 		))
