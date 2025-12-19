@@ -9,41 +9,46 @@ import (
 	"github.com/go-oryn/oryn-sandbox/configs"
 	"github.com/go-oryn/oryn-sandbox/pkg/core"
 	"github.com/go-oryn/oryn-sandbox/pkg/core/config"
-	"github.com/go-oryn/oryn-sandbox/pkg/core/log"
-	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
-	otelsdklog "go.opentelemetry.io/otel/sdk/log"
+	"go.opentelemetry.io/otel/metric"
 	oteltrace "go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 )
 
 func main() {
-	logExporter, err := otlploggrpc.New(
-		context.Background(),
-		otlploggrpc.WithInsecure(),
-		otlploggrpc.WithEndpoint("oryn-lgtm:4317"),
-	)
-	if err != nil {
-		panic(err)
-	}
-
 	fx.New(
 		core.Module,
 		config.AsConfigOptions(config.WithEmbedFS(configs.ConfigFS)),
-		log.AsLoggerProviderOptions(otelsdklog.WithProcessor(otelsdklog.NewBatchProcessor(logExporter))),
 		fx.Invoke(
-			func(cfg *config.Config, tracer oteltrace.Tracer, logger *slog.Logger, shutdown fx.Shutdowner) error {
+			func(
+				cfg *config.Config,
+				logger *slog.Logger,
+				tracer oteltrace.Tracer,
+				meter metric.Meter,
+				shutdown fx.Shutdowner,
+			) error {
+				ctx := context.Background()
+
+				counter, _ := meter.Int64Counter(
+					"tick.counter",
+					metric.WithDescription("Number of ticks."),
+					metric.WithUnit("{tick}"),
+				)
 
 				ticker := time.NewTicker(3 * time.Second)
 				defer ticker.Stop()
 
 				for range ticker.C {
-					ctx, span := tracer.Start(context.Background(), fmt.Sprintf("span-%d", time.Now().UnixNano()))
-					span.End()
+					// trace example
+					ctx, span := tracer.Start(ctx, fmt.Sprintf("span-%d", time.Now().UnixNano()))
 
+					// log example
 					logger.DebugContext(ctx, "some log debug level")
 					logger.InfoContext(ctx, "some log info level")
 
-					fmt.Printf("App name: %s, app env: %s\n", cfg.GetString("app.name"), cfg.Env())
+					// metric example
+					counter.Add(ctx, 1)
+
+					span.End()
 				}
 
 				return shutdown.Shutdown()
