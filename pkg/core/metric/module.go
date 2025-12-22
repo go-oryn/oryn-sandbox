@@ -28,7 +28,7 @@ var Module = fx.Module(
 
 type ProvideMeterProviderParams struct {
 	fx.In
-	LifeCycle fx.Lifecycle
+	Lifecycle fx.Lifecycle
 	Config    *config.Config
 	Resource  *resource.Resource
 	Options   []sdkmetric.Option `group:"metric-provider-options"`
@@ -42,7 +42,7 @@ func ProvideMeterProvider(params ProvideMeterProviderParams) (*sdkmetric.MeterPr
 
 	mp := sdkmetric.NewMeterProvider(mpOpts...)
 
-	params.LifeCycle.Append(fx.Hook{
+	params.Lifecycle.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
 			err := mp.ForceFlush(ctx)
 			if err != nil {

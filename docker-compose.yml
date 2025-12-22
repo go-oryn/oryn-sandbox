@@ -9,9 +9,9 @@ services:
     networks:
       - oryn-sandbox
     ports:
-      - "8080:8080"
+      - "8888:8888"
     expose:
-      - "8080"
+      - "8888"
     volumes:
       - .:/app
     env_file:

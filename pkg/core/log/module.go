@@ -30,7 +30,7 @@ var Module = fx.Module(
 
 type ProvideLoggerProviderParams struct {
 	fx.In
-	LifeCycle fx.Lifecycle
+	Lifecycle fx.Lifecycle
 	Config    *config.Config
 	Resource  *resource.Resource
 	Options   []sdklog.LoggerProviderOption `group:"log-provider-options"`
@@ -44,7 +44,7 @@ func ProvideLoggerProvider(params ProvideLoggerProviderParams) (*sdklog.LoggerPr
 
 	lp := sdklog.NewLoggerProvider(lpOpts...)
 
-	params.LifeCycle.Append(fx.Hook{
+	params.Lifecycle.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
 			err := lp.ForceFlush(ctx)
 			if err != nil {

@@ -5,6 +5,8 @@ import (
 	"github.com/go-oryn/oryn-sandbox/pkg/core/log"
 	"github.com/go-oryn/oryn-sandbox/pkg/core/metric"
 	"github.com/go-oryn/oryn-sandbox/pkg/core/trace"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 	"go.uber.org/fx"
@@ -17,11 +19,12 @@ var Module = fx.Module(
 	// Core sub modules
 	config.Module,
 	log.Module,
-	trace.Module,
 	metric.Module,
+	trace.Module,
 	// Core common dependencies
 	fx.Provide(
 		ProvideOTelResource,
+		ProvideOTelPropagator,
 	),
 )
 
@@ -39,4 +42,15 @@ func ProvideOTelResource(params ProvideOTELResourceParams) (*resource.Resource, 
 			semconv.ServiceVersion(params.Config.GetString("app.version")),
 		),
 	)
+}
+
+func ProvideOTelPropagator() propagation.TextMapPropagator {
+	propagator := propagation.NewCompositeTextMapPropagator(
+		propagation.TraceContext{},
+		propagation.Baggage{},
+	)
+
+	otel.SetTextMapPropagator(propagator)
+
+	return propagator
 }

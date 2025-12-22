@@ -2,7 +2,7 @@ metric:
   interval: 3s
   exporters:
     stdout:
-      enabled: true
+      enabled: false
       options:
         pretty_print: false
     otlp_grpc:

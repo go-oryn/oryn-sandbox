@@ -28,7 +28,7 @@ var Module = fx.Module(
 
 type ProvideTracerProviderParams struct {
 	fx.In
-	LifeCycle fx.Lifecycle
+	Lifecycle fx.Lifecycle
 	Config    *config.Config
 	Resource  *resource.Resource
 	Options   []sdktrace.TracerProviderOption `group:"trace-provider-options"`
@@ -42,7 +42,7 @@ func ProvideTracerProvider(params ProvideTracerProviderParams) (*sdktrace.Tracer
 
 	tp := sdktrace.NewTracerProvider(tpOpts...)
 
-	params.LifeCycle.Append(fx.Hook{
+	params.Lifecycle.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
 			err := tp.ForceFlush(ctx)
 			if err != nil {
