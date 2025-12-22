@@ -35,7 +35,7 @@ type ProvideHTTPServerParams struct {
 
 func ProvideHTTPServer(params ProvideHTTPServerParams) (*echo.Echo, error) {
 	server := echo.New()
-	serverAddress := params.Config.GetStringOrDefault("httpserver.address", ":8080")
+	server.HideBanner = true
 
 	server.Use(otelecho.Middleware(
 		params.Config.GetString("app.name"),
@@ -45,6 +45,7 @@ func ProvideHTTPServer(params ProvideHTTPServerParams) (*echo.Echo, error) {
 	))
 
 	logger := params.Logger.With("module", ModuleName)
+	serverAddress := params.Config.GetStringOrDefault("httpserver.address", ":8080")
 
 	params.Lifecycle.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
