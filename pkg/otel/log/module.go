@@ -79,7 +79,5 @@ type ProvideLoggerParams struct {
 }
 
 func ProvideLogger(params ProvideLoggerParams) *slog.Logger {
-	//	otelslog.WithSource(params.Config.GetBool("log.source")),
-
 	return slog.New(params.Handler)
 }
