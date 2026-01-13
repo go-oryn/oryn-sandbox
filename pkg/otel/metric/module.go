@@ -2,9 +2,8 @@ package metric
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/go-oryn/oryn-sandbox/pkg/core/config"
+	"github.com/go-oryn/oryn-sandbox/pkg/config"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
@@ -27,16 +26,19 @@ type ProvideMeterProviderParams struct {
 	Lifecycle fx.Lifecycle
 	Config    *config.Config
 	Resource  *resource.Resource
-	Options   []sdkmetric.Option `group:"metric-provider-options"`
+	Options   []sdkmetric.Option `group:"otel-metric-provider-options"`
 }
 
 func ProvideMeterProvider(params ProvideMeterProviderParams) (*sdkmetric.MeterProvider, error) {
-	mpOpts, err := MeterProviderOptions(context.Background(), params.Config, params.Resource, params.Options...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create meter provider options: %w", err)
+	mpOpts := []sdkmetric.Option{
+		sdkmetric.WithResource(params.Resource),
 	}
 
+	mpOpts = append(mpOpts, params.Options...)
+
 	mp := sdkmetric.NewMeterProvider(mpOpts...)
+
+	otel.SetMeterProvider(mp)
 
 	params.Lifecycle.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
@@ -49,17 +51,15 @@ func ProvideMeterProvider(params ProvideMeterProviderParams) (*sdkmetric.MeterPr
 		},
 	})
 
-	otel.SetMeterProvider(mp)
-
 	return mp, nil
 }
 
 type ProvideMeterParams struct {
 	fx.In
 	Provider metric.MeterProvider
-	Options  []metric.MeterOption `group:"metric-meter-options"`
+	Options  []metric.MeterOption `group:"otel-metric-meter-options"`
 }
 
 func ProvideMeter(params ProvideMeterParams) metric.Meter {
-	return params.Provider.Meter("github.com/go-oryn/oryn", params.Options...)
+	return params.Provider.Meter("github.com/go-oryn/oryn/otel/metric", params.Options...)
 }

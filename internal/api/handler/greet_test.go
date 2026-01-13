@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/go-oryn/oryn-sandbox/internal"
-	"github.com/go-oryn/oryn-sandbox/pkg/core/config"
+	config2 "github.com/go-oryn/oryn-sandbox/pkg/config"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/fx"
@@ -17,7 +17,7 @@ func TestGreetHandler(t *testing.T) {
 
 	stop := internal.RunTest(
 		t,
-		config.AsConfigOptions(config.WithValues(map[string]any{
+		config2.AsConfigOptions(config2.WithValues(map[string]any{
 			"app.name": "test app",
 		})),
 		fx.Populate(&server),

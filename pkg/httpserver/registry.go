@@ -35,10 +35,10 @@ func (r *Registry) Register(srv *echo.Echo) error {
 
 		handlerFunc, err := handler.Handle()
 		if err != nil {
-			return fmt.Errorf("cannot register handler type %s func %w", handlerDefinition.Type, err)
+			return fmt.Errorf("cannot register handler of type %s func %w", handlerDefinition.Type, err)
 		}
 
-		r.logger.Debug("registered handler with type", "type", handlerDefinition.Type)
+		r.logger.Debug("registered handler of type", "type", handlerDefinition.Type)
 		srv.Add(handlerDefinition.Method, handlerDefinition.Path, handlerFunc)
 	}
 
@@ -52,5 +52,5 @@ func (r *Registry) lookupHandlerFromDefinition(definition HandlerDefinition) (Ha
 		}
 	}
 
-	return nil, fmt.Errorf("cannot find handler type %s", definition.Type)
+	return nil, fmt.Errorf("cannot find handler for type %s", definition.Type.String())
 }

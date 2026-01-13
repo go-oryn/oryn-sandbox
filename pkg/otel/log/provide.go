@@ -14,7 +14,7 @@ func AsLoggerProviderOptions(options ...sdklog.LoggerProviderOption) fx.Option {
 			fx.Annotate(
 				opt,
 				fx.As(new(sdklog.LoggerProviderOption)),
-				fx.ResultTags(`group:"log-provider-options"`),
+				fx.ResultTags(`group:"otel-log-provider-options"`),
 			),
 		))
 	}
@@ -22,7 +22,7 @@ func AsLoggerProviderOptions(options ...sdklog.LoggerProviderOption) fx.Option {
 	return fx.Options(fxOptions...)
 }
 
-func AsLoggerOptions(options ...otelslog.Option) fx.Option {
+func AsLoggerHandlerOptions(options ...otelslog.Option) fx.Option {
 	fxOptions := []fx.Option{}
 
 	for _, opt := range options {
@@ -30,7 +30,7 @@ func AsLoggerOptions(options ...otelslog.Option) fx.Option {
 			fx.Annotate(
 				opt,
 				fx.As(new(otelslog.Option)),
-				fx.ResultTags(`group:"log-logger-options"`),
+				fx.ResultTags(`group:"otel-log-handler-options"`),
 			),
 		))
 	}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/go-oryn/oryn-sandbox/pkg/core/config"
+	"github.com/go-oryn/oryn-sandbox/pkg/config"
 	"go.opentelemetry.io/otel/metric"
 	oteltrace "go.opentelemetry.io/otel/trace"
 )
@@ -24,9 +24,9 @@ func NewGreetService(
 	meter metric.Meter,
 ) (*GreetService, error) {
 	counter, err := meter.Int64Counter(
-		"tick.counter",
-		metric.WithDescription("Number of ticks."),
-		metric.WithUnit("{tick}"),
+		"greet.counter",
+		metric.WithDescription("Number of greets."),
+		metric.WithUnit("{greet}"),
 	)
 	if err != nil {
 		return nil, err

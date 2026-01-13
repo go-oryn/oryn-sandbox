@@ -2,10 +2,9 @@ package log
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 
-	"github.com/go-oryn/oryn-sandbox/pkg/core/config"
+	"github.com/go-oryn/oryn-sandbox/pkg/config"
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/otel/log"
 	"go.opentelemetry.io/otel/log/global"
@@ -14,12 +13,13 @@ import (
 	"go.uber.org/fx"
 )
 
-const ModuleName = "trace"
+const ModuleName = "log"
 
 var Module = fx.Module(
 	ModuleName,
 	fx.Provide(
 		fx.Annotate(ProvideLoggerProvider, fx.As(fx.Self()), fx.As(new(log.LoggerProvider))),
+		fx.Annotate(ProvideLoggerHandler, fx.As(fx.Self()), fx.As(new(slog.Handler))),
 		ProvideLogger,
 	),
 )
@@ -29,16 +29,19 @@ type ProvideLoggerProviderParams struct {
 	Lifecycle fx.Lifecycle
 	Config    *config.Config
 	Resource  *resource.Resource
-	Options   []sdklog.LoggerProviderOption `group:"log-provider-options"`
+	Options   []sdklog.LoggerProviderOption `group:"otel-log-provider-options"`
 }
 
 func ProvideLoggerProvider(params ProvideLoggerProviderParams) (*sdklog.LoggerProvider, error) {
-	lpOpts, err := LoggerProviderOptions(context.Background(), params.Config, params.Resource, params.Options...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create logger provider options: %w", err)
+	lpOpts := []sdklog.LoggerProviderOption{
+		sdklog.WithResource(params.Resource),
 	}
 
+	lpOpts = append(lpOpts, params.Options...)
+
 	lp := sdklog.NewLoggerProvider(lpOpts...)
+
+	global.SetLoggerProvider(lp)
 
 	params.Lifecycle.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
@@ -51,29 +54,32 @@ func ProvideLoggerProvider(params ProvideLoggerProviderParams) (*sdklog.LoggerPr
 		},
 	})
 
-	global.SetLoggerProvider(lp)
-
 	return lp, nil
+}
+
+type ProvideLoggerHandlerParams struct {
+	fx.In
+	Provider log.LoggerProvider
+	Options  []otelslog.Option `group:"otel-log-handler-options"`
+}
+
+func ProvideLoggerHandler(params ProvideLoggerHandlerParams) *otelslog.Handler {
+	lhOpts := []otelslog.Option{
+		otelslog.WithLoggerProvider(params.Provider),
+	}
+
+	lhOpts = append(lhOpts, params.Options...)
+
+	return otelslog.NewHandler("github.com/go-oryn/oryn/otel/log", lhOpts...)
 }
 
 type ProvideLoggerParams struct {
 	fx.In
-	LifeCycle fx.Lifecycle
-	Config    *config.Config
-	Provider  log.LoggerProvider
-	Options   []otelslog.Option `group:"log-logger-options"`
+	Handler slog.Handler
 }
 
 func ProvideLogger(params ProvideLoggerParams) *slog.Logger {
-	opts := []otelslog.Option{
-		otelslog.WithLoggerProvider(params.Provider),
-		otelslog.WithSource(params.Config.GetBool("log.source")),
-	}
+	//	otelslog.WithSource(params.Config.GetBool("log.source")),
 
-	handler := otelslog.NewHandler("github.com/go-oryn/oryn", append(opts, params.Options...)...)
-
-	return slog.New(NewLeveledHandler(
-		ParseLogLevel(params.Config.GetString("log.level")),
-		handler,
-	))
+	return slog.New(params.Handler)
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/go-oryn/oryn-sandbox/pkg/core/config"
+	"github.com/go-oryn/oryn-sandbox/pkg/config"
 	"github.com/labstack/echo/v4"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.opentelemetry.io/otel/metric"

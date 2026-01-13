@@ -14,7 +14,7 @@ func AsTracerProviderOptions(options ...sdktrace.TracerProviderOption) fx.Option
 			fx.Annotate(
 				opt,
 				fx.As(new(sdktrace.TracerProviderOption)),
-				fx.ResultTags(`group:"trace-provider-options"`),
+				fx.ResultTags(`group:"otel-trace-provider-options"`),
 			),
 		))
 	}
@@ -30,7 +30,7 @@ func AsTracerOptions(options ...trace.TracerOption) fx.Option {
 			fx.Annotate(
 				opt,
 				fx.As(new(trace.TracerOption)),
-				fx.ResultTags(`group:"trace-tracer-options"`),
+				fx.ResultTags(`group:"otel-trace-tracer-options"`),
 			),
 		))
 	}

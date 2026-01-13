@@ -2,9 +2,8 @@ package trace
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/go-oryn/oryn-sandbox/pkg/core/config"
+	"github.com/go-oryn/oryn-sandbox/pkg/config"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -27,16 +26,19 @@ type ProvideTracerProviderParams struct {
 	Lifecycle fx.Lifecycle
 	Config    *config.Config
 	Resource  *resource.Resource
-	Options   []sdktrace.TracerProviderOption `group:"trace-provider-options"`
+	Options   []sdktrace.TracerProviderOption `group:"otel-trace-provider-options"`
 }
 
 func ProvideTracerProvider(params ProvideTracerProviderParams) (*sdktrace.TracerProvider, error) {
-	tpOpts, err := TracerProviderOptions(context.Background(), params.Config, params.Resource, params.Options...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create tracer provider options: %w", err)
+	tpOpts := []sdktrace.TracerProviderOption{
+		sdktrace.WithResource(params.Resource),
 	}
 
+	tpOpts = append(tpOpts, params.Options...)
+
 	tp := sdktrace.NewTracerProvider(tpOpts...)
+
+	otel.SetTracerProvider(tp)
 
 	params.Lifecycle.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
@@ -49,17 +51,15 @@ func ProvideTracerProvider(params ProvideTracerProviderParams) (*sdktrace.Tracer
 		},
 	})
 
-	otel.SetTracerProvider(tp)
-
 	return tp, nil
 }
 
 type ProvideTracerParams struct {
 	fx.In
 	Provider trace.TracerProvider
-	Options  []trace.TracerOption `group:"trace-tracer-options"`
+	Options  []trace.TracerOption `group:"otel-trace-tracer-options"`
 }
 
 func ProvideTracer(params ProvideTracerParams) trace.Tracer {
-	return params.Provider.Tracer("github.com/go-oryn/oryn", params.Options...)
+	return params.Provider.Tracer("github.com/go-oryn/oryn/otel/trace", params.Options...)
 }

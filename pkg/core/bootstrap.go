@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/go-oryn/oryn-sandbox/pkg/core/config"
+	config2 "github.com/go-oryn/oryn-sandbox/pkg/config"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )
@@ -47,7 +47,7 @@ func (b *Bootstrapper) BootstrapTestApp(tb testing.TB, options ...fx.Option) *fx
 
 	return fxtest.New(
 		tb,
-		config.AsConfigOptions(config.WithEnvironment("test")),
+		config2.AsConfigOptions(config2.WithEnvironment("test")),
 		fx.Supply(fx.Annotate(tb.Context(), fx.As(new(context.Context)))),
 		fx.Options(b.options...),
 		fx.Options(options...),
