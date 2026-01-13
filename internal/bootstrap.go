@@ -24,7 +24,7 @@ var Bootstrapper = core.NewBootstrapper(
 	domain.Module,
 	// app config
 	config.AsConfigOptions(config.WithEmbedFS(configs.ConfigFS)),
-	// to remove
+	// some opts drivers (to remove)
 	log.AsLoggerHandlerOptions(otelslog.WithAttributes(attribute.String("foo", "bar"))),
 )
 

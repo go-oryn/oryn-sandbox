@@ -101,7 +101,6 @@ func ConfigureOTelLoggerProviderOptions(params ConfigureOTelLoggerProviderOption
 
 				lpOpts = append(lpOpts, log.WithProcessor(log.NewBatchProcessor(exp)))
 			}
-
 		}
 	}
 
@@ -160,7 +159,6 @@ func ConfigureOTelMeterProviderOptions(params ConfigureOTelMeterProviderOptionsP
 					metric.NewPeriodicReader(exp, metric.WithInterval(params.Config.GetDuration("metric.interval"))),
 				))
 			}
-
 		}
 	}
 
@@ -215,7 +213,6 @@ func ConfigureOTelTracerProviderOptions(params ConfigureOTelTracerProviderOption
 
 				tpOpts = append(tpOpts, trace.WithBatcher(exp))
 			}
-
 		}
 	}
 
@@ -229,10 +226,7 @@ type ConfigureOTelLoggerHandlerOptionsParams struct {
 }
 
 func ConfigureOTelLoggerHandlerOptions(params ConfigureOTelLoggerHandlerOptionsParams) []otelslog.Option {
-	return append(
-		params.Options,
-		otelslog.WithSource(params.Config.GetBool("log.source")),
-	)
+	return append(params.Options, otelslog.WithSource(params.Config.GetBool("log.source")))
 }
 
 type ConfigureOTelLoggerHandlerParams struct {
