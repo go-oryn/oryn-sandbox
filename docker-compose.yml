@@ -1,8 +1,6 @@
 services:
   oryn-app:
     container_name: oryn-app
-    depends_on:
-      - oryn-lgtm
     build:
       dockerfile: Dockerfile
       context: .

@@ -17,11 +17,7 @@ const ModuleName = "metric"
 var Module = fx.Module(
 	ModuleName,
 	fx.Provide(
-		fx.Annotate(
-			ProvideMeterProvider,
-			fx.As(fx.Self()),
-			fx.As(new(metric.MeterProvider)),
-		),
+		fx.Annotate(ProvideMeterProvider, fx.As(fx.Self()), fx.As(new(metric.MeterProvider))),
 		ProvideMeter,
 	),
 )

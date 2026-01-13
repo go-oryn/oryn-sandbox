@@ -18,11 +18,23 @@ const ModuleName = "httpserver"
 var Module = fx.Module(
 	ModuleName,
 	fx.Provide(
-		ProvideHTTPServer,
+		ProvideRegistry,
+		ProvideServer,
 	),
 )
 
-type ProvideHTTPServerParams struct {
+type ProvideRegistryParams struct {
+	fx.In
+	Logger              *slog.Logger
+	Handlers            []Handler           `group:"httpserver-handlers"`
+	HandlersDefinitions []HandlerDefinition `group:"httpserver-handlers-definitions"`
+}
+
+func ProvideRegistry(params ProvideRegistryParams) *Registry {
+	return NewRegistry(params.Logger, params.Handlers, params.HandlersDefinitions)
+}
+
+type ProvideServerParams struct {
 	fx.In
 	Lifecycle      fx.Lifecycle
 	Shutdown       fx.Shutdowner
@@ -31,11 +43,17 @@ type ProvideHTTPServerParams struct {
 	Propagator     propagation.TextMapPropagator
 	TracerProvider trace.TracerProvider
 	MeterProvider  metric.MeterProvider
+	Registry       *Registry
 }
 
-func ProvideHTTPServer(params ProvideHTTPServerParams) (*echo.Echo, error) {
+func ProvideServer(params ProvideServerParams) (*echo.Echo, error) {
 	server := echo.New()
 	server.HideBanner = true
+
+	err := params.Registry.Register(server)
+	if err != nil {
+		return nil, err
+	}
 
 	server.Use(otelecho.Middleware(
 		params.Config.GetString("app.name"),
@@ -44,36 +62,47 @@ func ProvideHTTPServer(params ProvideHTTPServerParams) (*echo.Echo, error) {
 		otelecho.WithPropagators(params.Propagator),
 	))
 
-	logger := params.Logger.With("module", ModuleName)
-	serverAddress := params.Config.GetStringOrDefault("httpserver.address", ":8080")
-
-	params.Lifecycle.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			go func() {
-				err := server.Start(serverAddress)
-				if err != nil {
-
-					logger.ErrorContext(ctx, "failed to start HTTP server", "error", err, "address", serverAddress)
-
-					params.Shutdown.Shutdown()
-				}
-			}()
-
-			logger.DebugContext(ctx, "started HTTP server", "address", serverAddress)
-
-			return nil
-		},
-		OnStop: func(ctx context.Context) error {
-			err := server.Shutdown(ctx)
-			if err != nil {
-				logger.ErrorContext(ctx, "failed to stop HTTP server", "error", err)
-
-				return err
-			}
-
-			return nil
-		},
-	})
-
 	return server, nil
+}
+
+func RunServer() fx.Option {
+	return fx.Invoke(
+		func(
+			lifecycle fx.Lifecycle,
+			shutdown fx.Shutdowner,
+			config *config.Config,
+			logger *slog.Logger,
+			server *echo.Echo,
+		) {
+			address := config.GetStringOrDefault("httpserver.address", ":8080")
+
+			lifecycle.Append(fx.Hook{
+				OnStart: func(ctx context.Context) error {
+					go func() {
+						err := server.Start(address)
+						if err != nil {
+
+							logger.ErrorContext(ctx, "failed to start HTTP server", "error", err, "address", address)
+
+							shutdown.Shutdown()
+						}
+					}()
+
+					logger.DebugContext(ctx, "started HTTP server", "address", address)
+
+					return nil
+				},
+				OnStop: func(ctx context.Context) error {
+					err := server.Shutdown(ctx)
+					if err != nil {
+						logger.ErrorContext(ctx, "failed to stop HTTP server", "error", err)
+
+						return err
+					}
+
+					return nil
+				},
+			})
+		},
+	)
 }

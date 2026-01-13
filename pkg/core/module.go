@@ -1,6 +1,8 @@
 package core
 
 import (
+	"log/slog"
+
 	"github.com/go-oryn/oryn-sandbox/pkg/core/config"
 	"github.com/go-oryn/oryn-sandbox/pkg/core/log"
 	"github.com/go-oryn/oryn-sandbox/pkg/core/metric"
@@ -10,23 +12,34 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 	"go.uber.org/fx"
+	"go.uber.org/fx/fxevent"
 )
 
 const ModuleName = "core"
 
 var Module = fx.Module(
 	ModuleName,
-	// Core sub modules
+	// sub modules
 	config.Module,
 	log.Module,
 	metric.Module,
 	trace.Module,
-	// Core common dependencies
+	// common dependencies
 	fx.Provide(
 		ProvideOTelResource,
 		ProvideOTelPropagator,
 	),
+	// configuration
+	//ConfigureFxLogger(),
 )
+
+func ConfigureFxLogger() fx.Option {
+	return fx.WithLogger(func(logger *slog.Logger) fxevent.Logger {
+		return &fxevent.SlogLogger{
+			Logger: logger,
+		}
+	})
+}
 
 type ProvideOTELResourceParams struct {
 	fx.In

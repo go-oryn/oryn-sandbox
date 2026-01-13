@@ -17,11 +17,7 @@ const ModuleName = "trace"
 var Module = fx.Module(
 	ModuleName,
 	fx.Provide(
-		fx.Annotate(
-			ProvideTracerProvider,
-			fx.As(fx.Self()),
-			fx.As(new(trace.TracerProvider)),
-		),
+		fx.Annotate(ProvideTracerProvider, fx.As(fx.Self()), fx.As(new(trace.TracerProvider))),
 		ProvideTracer,
 	),
 )

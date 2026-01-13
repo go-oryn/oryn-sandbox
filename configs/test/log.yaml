@@ -1,0 +1,8 @@
+log:
+  level: debug
+  source: true
+  exporters:
+    stdout:
+      enabled: false
+    otlp_grpc:
+      enabled: false
