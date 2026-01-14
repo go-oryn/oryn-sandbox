@@ -11,10 +11,10 @@ import (
 var _ worker.Worker = (*GreetWorker)(nil)
 
 type GreetWorker struct {
-	service *greet.GreetService
+	service *greet.Service
 }
 
-func NewGreetWorker(service *greet.GreetService) *GreetWorker {
+func NewGreetWorker(service *greet.Service) *GreetWorker {
 	return &GreetWorker{
 		service: service,
 	}

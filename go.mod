@@ -3,6 +3,8 @@ module github.com/go-oryn/oryn-sandbox
 go 1.25.3
 
 require (
+	github.com/XSAM/otelsql v0.41.0
+	github.com/go-sql-driver/mysql v1.9.3
 	github.com/labstack/echo/v4 v4.15.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
@@ -27,6 +29,7 @@ require (
 )
 
 require (
+	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

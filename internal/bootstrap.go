@@ -10,27 +10,24 @@ import (
 	internalworker "github.com/go-oryn/oryn-sandbox/internal/worker"
 	"github.com/go-oryn/oryn-sandbox/pkg/config"
 	"github.com/go-oryn/oryn-sandbox/pkg/core"
+	"github.com/go-oryn/oryn-sandbox/pkg/db"
 	"github.com/go-oryn/oryn-sandbox/pkg/httpserver"
-	"github.com/go-oryn/oryn-sandbox/pkg/otel/log"
 	"github.com/go-oryn/oryn-sandbox/pkg/worker"
 
-	"go.opentelemetry.io/contrib/bridges/otelslog"
-	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/fx"
 )
 
 var Bootstrapper = core.NewBootstrapper(
-	// blueprint modules
+	// shared modules
 	httpserver.Module,
 	worker.Module,
+	db.Module,
 	// app modules
 	internalapi.Module,
 	internaldomain.Module,
 	internalworker.Module,
 	// app config
 	config.AsConfigOptions(config.WithEmbedFS(configs.ConfigFS)),
-	// some opts drivers (to remove)
-	log.AsLoggerHandlerOptions(otelslog.WithAttributes(attribute.String("foo", "bar"))),
 )
 
 func Run(ctx context.Context, options ...fx.Option) {

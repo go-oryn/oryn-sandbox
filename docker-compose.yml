@@ -1,6 +1,9 @@
 services:
   oryn-app:
     container_name: oryn-app
+    depends_on:
+      - oryn-db
+      - oryn-lgtm
     build:
       dockerfile: Dockerfile
       context: .
@@ -14,6 +17,25 @@ services:
       - .:/app
     env_file:
       - .env
+
+
+  oryn-db:
+    container_name: oryn-db
+    image: mysql:8
+    restart: always
+    networks:
+      - oryn-sandbox
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    volumes:
+      - oryn-db-data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: oryn
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
 
   oryn-lgtm:
     container_name: oryn-lgtm
@@ -30,6 +52,8 @@ services:
       - oryn-lgtm-data:/var/lib/grafana
 
 volumes:
+  oryn-db-data:
+    driver: local
   oryn-lgtm-data:
     driver: local
 

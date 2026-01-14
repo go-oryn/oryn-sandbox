@@ -8,10 +8,10 @@ import (
 )
 
 type GreetHandler struct {
-	service *greet.GreetService
+	service *greet.Service
 }
 
-func NewGreetHandler(service *greet.GreetService) *GreetHandler {
+func NewGreetHandler(service *greet.Service) *GreetHandler {
 	return &GreetHandler{
 		service: service,
 	}

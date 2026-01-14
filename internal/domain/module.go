@@ -9,8 +9,9 @@ const ModuleName = "domain"
 
 var Module = fx.Module(
 	ModuleName,
-	// greet
+	// greet domain
 	fx.Provide(
-		greet.NewGreetService,
+		greet.NewRepository,
+		greet.NewService,
 	),
 )
