@@ -23,6 +23,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.39.0
 	go.opentelemetry.io/otel/trace v1.39.0
 	go.uber.org/fx v1.24.0
+	golang.org/x/sync v0.19.0
 )
 
 require (

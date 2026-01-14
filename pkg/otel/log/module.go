@@ -70,7 +70,7 @@ func ProvideLoggerHandler(params ProvideLoggerHandlerParams) *otelslog.Handler {
 
 	lhOpts = append(lhOpts, params.Options...)
 
-	return otelslog.NewHandler("github.com/go-oryn/oryn/otel/log", lhOpts...)
+	return otelslog.NewHandler("github.com/go-oryn/oryn/otel", lhOpts...)
 }
 
 type ProvideLoggerParams struct {

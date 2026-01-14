@@ -5,12 +5,15 @@ import (
 	"testing"
 
 	"github.com/go-oryn/oryn-sandbox/configs"
-	"github.com/go-oryn/oryn-sandbox/internal/api"
-	"github.com/go-oryn/oryn-sandbox/internal/domain"
+	internalapi "github.com/go-oryn/oryn-sandbox/internal/api"
+	internaldomain "github.com/go-oryn/oryn-sandbox/internal/domain"
+	internalworker "github.com/go-oryn/oryn-sandbox/internal/worker"
 	"github.com/go-oryn/oryn-sandbox/pkg/config"
 	"github.com/go-oryn/oryn-sandbox/pkg/core"
 	"github.com/go-oryn/oryn-sandbox/pkg/httpserver"
 	"github.com/go-oryn/oryn-sandbox/pkg/otel/log"
+	"github.com/go-oryn/oryn-sandbox/pkg/worker"
+
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/fx"
@@ -19,9 +22,11 @@ import (
 var Bootstrapper = core.NewBootstrapper(
 	// blueprint modules
 	httpserver.Module,
+	worker.Module,
 	// app modules
-	api.Module,
-	domain.Module,
+	internalapi.Module,
+	internaldomain.Module,
+	internalworker.Module,
 	// app config
 	config.AsConfigOptions(config.WithEmbedFS(configs.ConfigFS)),
 	// some opts drivers (to remove)

@@ -61,5 +61,5 @@ type ProvideMeterParams struct {
 }
 
 func ProvideMeter(params ProvideMeterParams) metric.Meter {
-	return params.Provider.Meter("github.com/go-oryn/oryn/otel/metric", params.Options...)
+	return params.Provider.Meter("github.com/go-oryn/oryn/otel", params.Options...)
 }

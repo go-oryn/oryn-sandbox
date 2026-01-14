@@ -1,6 +1,0 @@
-trace:
-  exporters:
-    stdout:
-      enabled: false
-    otlp_grpc:
-      enabled: false

@@ -61,5 +61,5 @@ type ProvideTracerParams struct {
 }
 
 func ProvideTracer(params ProvideTracerParams) trace.Tracer {
-	return params.Provider.Tracer("github.com/go-oryn/oryn/otel/trace", params.Options...)
+	return params.Provider.Tracer("github.com/go-oryn/oryn/otel", params.Options...)
 }

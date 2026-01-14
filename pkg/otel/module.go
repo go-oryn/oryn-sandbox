@@ -2,14 +2,17 @@ package otel
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/go-oryn/oryn-sandbox/pkg/otel/log"
 	"github.com/go-oryn/oryn-sandbox/pkg/otel/metric"
 	"github.com/go-oryn/oryn-sandbox/pkg/otel/trace"
 	"go.opentelemetry.io/otel"
+	otelmetric "go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
+	oteltrace "go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 )
 
@@ -25,6 +28,7 @@ var Module = fx.Module(
 	fx.Provide(
 		ProvideResource,
 		ProvidePropagator,
+		fx.Annotate(ProvideTelemetry, fx.As(fx.Self()), fx.As(new(Telemetry))),
 	),
 )
 
@@ -57,4 +61,15 @@ func ProvidePropagator() propagation.TextMapPropagator {
 	otel.SetTextMapPropagator(propagator)
 
 	return propagator
+}
+
+type ProvideTelemetryParams struct {
+	fx.In
+	Logger *slog.Logger
+	Meter  otelmetric.Meter
+	Tracer oteltrace.Tracer
+}
+
+func ProvideTelemetry(params ProvideTelemetryParams) *TelemetryWrapper {
+	return NewTelemetryWrapper(params.Logger, params.Meter, params.Tracer)
 }
