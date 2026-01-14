@@ -2,7 +2,6 @@ package worker
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 
 	"golang.org/x/sync/errgroup"
@@ -35,14 +34,10 @@ func (p *Pool) Start(ctx context.Context) error {
 	p.errGrp = errGrp
 	p.errGrpCancel = errGrpCancel
 
-	fmt.Println("*** starting worker pooll")
-	fmt.Printf("*** all workers : %#+v\n", p.workers)
 	p.logger.DebugContext(errGrpCtx, "starting workers pool")
 
 	for _, w := range p.workers {
-		fmt.Printf("****** itera worker %s\n", w.Name())
 		p.errGrp.Go(func() error {
-			fmt.Printf("****** starting worker %s\n", w.Name())
 			p.logger.DebugContext(errGrpCtx, "starting worker", "worker", w.Name())
 
 			err := w.Run(errGrpCtx)

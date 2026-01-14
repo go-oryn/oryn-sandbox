@@ -28,7 +28,7 @@ var Module = fx.Module(
 	fx.Provide(
 		ProvideResource,
 		ProvidePropagator,
-		fx.Annotate(ProvideTelemetry, fx.As(fx.Self()), fx.As(new(Telemetry))),
+		fx.Annotate(ProvideTelemetryWrapper, fx.As(fx.Self()), fx.As(new(Telemetry))),
 	),
 )
 
@@ -63,13 +63,13 @@ func ProvidePropagator() propagation.TextMapPropagator {
 	return propagator
 }
 
-type ProvideTelemetryParams struct {
+type ProvideTelemetryWrapperParams struct {
 	fx.In
 	Logger *slog.Logger
 	Meter  otelmetric.Meter
 	Tracer oteltrace.Tracer
 }
 
-func ProvideTelemetry(params ProvideTelemetryParams) *TelemetryWrapper {
+func ProvideTelemetryWrapper(params ProvideTelemetryWrapperParams) *TelemetryWrapper {
 	return NewTelemetryWrapper(params.Logger, params.Meter, params.Tracer)
 }

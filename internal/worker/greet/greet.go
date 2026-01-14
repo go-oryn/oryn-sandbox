@@ -5,7 +5,10 @@ import (
 	"time"
 
 	"github.com/go-oryn/oryn-sandbox/internal/domain/greet"
+	"github.com/go-oryn/oryn-sandbox/pkg/worker"
 )
+
+var _ worker.Worker = (*GreetWorker)(nil)
 
 type GreetWorker struct {
 	service *greet.GreetService
@@ -29,7 +32,7 @@ func (w *GreetWorker) Run(ctx context.Context) error {
 		default:
 			w.service.Greet(ctx)
 
-			time.Sleep(1 * time.Second)
+			time.Sleep(10 * time.Second)
 		}
 	}
 }
