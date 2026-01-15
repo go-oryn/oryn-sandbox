@@ -3,15 +3,18 @@ package worker
 import (
 	"context"
 	"errors"
+	"log/slog"
 )
 
 type WorkersProbe struct {
-	pool *Pool
+	logger *slog.Logger
+	pool   *Pool
 }
 
-func NewWorkersProbe(pool *Pool) *WorkersProbe {
+func NewWorkersProbe(logger *slog.Logger, pool *Pool) *WorkersProbe {
 	return &WorkersProbe{
-		pool: pool,
+		logger: logger,
+		pool:   pool,
 	}
 }
 
@@ -19,12 +22,14 @@ func (p *WorkersProbe) Name() string {
 	return "workers"
 }
 
-func (p *WorkersProbe) Probe(ctx context.Context) (string, error) {
+func (p *WorkersProbe) Probe(ctx context.Context) error {
 	if !p.pool.Running() {
-		msg := "workers are not running"
+		msg := "worker pool is not running"
 
-		return msg, errors.New(msg)
+		p.logger.ErrorContext(ctx, msg)
+
+		return errors.New(msg)
 	}
 
-	return "workers are running", nil
+	return nil
 }

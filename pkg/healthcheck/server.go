@@ -18,8 +18,8 @@ func NewServer(config *config.Config, checker *Checker) *Server {
 	server.GET(config.GetStringOrDefault("healthcheck.httpserver.path", "/health"), func(c echo.Context) error {
 		verbose := c.QueryParam("verbose")
 
-		res, err := checker.Check(c.Request().Context())
-		if err != nil {
+		res := checker.Check(c.Request().Context())
+		if !res.Healthy() {
 			if verbose == "" {
 				return c.NoContent(http.StatusInternalServerError)
 			}

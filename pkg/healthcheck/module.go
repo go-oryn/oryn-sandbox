@@ -25,7 +25,7 @@ type ProvideCheckerParams struct {
 }
 
 func ProvideChecker(params ProvideCheckerParams) *Checker {
-	return NewChecker(params.Probes...)
+	return NewChecker(params.Logger, params.Probes...)
 }
 
 type ProvideServerParams struct {

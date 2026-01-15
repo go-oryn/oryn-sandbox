@@ -3,15 +3,18 @@ package db
 import (
 	"context"
 	"database/sql"
+	"log/slog"
 )
 
 type DBProbe struct {
-	db *sql.DB
+	logger *slog.Logger
+	db     *sql.DB
 }
 
-func NewDBProbe(db *sql.DB) *DBProbe {
+func NewDBProbe(logger *slog.Logger, db *sql.DB) *DBProbe {
 	return &DBProbe{
-		db: db,
+		logger: logger,
+		db:     db,
 	}
 }
 
@@ -19,11 +22,15 @@ func (p *DBProbe) Name() string {
 	return "db"
 }
 
-func (p *DBProbe) Probe(ctx context.Context) (string, error) {
+func (p *DBProbe) Probe(ctx context.Context) error {
 	err := p.db.PingContext(ctx)
 	if err != nil {
-		return "database ping error", err
+		msg := "database ping error"
+
+		p.logger.ErrorContext(ctx, msg, "error", err)
+
+		return err
 	}
 
-	return "database ping success", nil
+	return nil
 }
