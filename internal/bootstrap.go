@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/go-oryn/oryn-sandbox/configs"
+	"github.com/go-oryn/oryn-sandbox/db/migrations"
 	internalapi "github.com/go-oryn/oryn-sandbox/internal/api"
 	internaldomain "github.com/go-oryn/oryn-sandbox/internal/domain"
 	internalinfra "github.com/go-oryn/oryn-sandbox/internal/infra"
@@ -32,6 +33,8 @@ var Bootstrapper = core.NewBootstrapper(
 	internalworker.Module,
 	// app config
 	config.AsConfigOptions(config.WithEmbedFS(configs.ConfigFS)),
+	// app migrations
+	db.AsMigratorOptions(db.WithMigrationsEmbedFS(migrations.MigrationsFS)),
 )
 
 func Run(ctx context.Context, options ...fx.Option) {

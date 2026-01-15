@@ -1,3 +1,10 @@
 db:
   driver: mysql
   dsn: ${DATABASE_DSN}
+  seeds:
+    users:
+      alice: frontend
+      bob: backend
+      carl: backend
+      dan: frontend
+      elvis: backend

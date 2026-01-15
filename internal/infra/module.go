@@ -1,6 +1,7 @@
-package worker
+package infra
 
 import (
+	"github.com/go-oryn/oryn-sandbox/db/seeds"
 	"github.com/go-oryn/oryn-sandbox/pkg/db"
 	"github.com/go-oryn/oryn-sandbox/pkg/healthcheck"
 	"github.com/go-oryn/oryn-sandbox/pkg/worker"
@@ -11,7 +12,9 @@ const ModuleName = "infra"
 
 var Module = fx.Module(
 	ModuleName,
-	// probes
+	// db seeders
+	db.AsSeeds(seeds.NewUsersSeed),
+	// health check probes
 	healthcheck.AsProbe(db.NewDBProbe),
 	healthcheck.AsProbe(worker.NewWorkersProbe),
 )

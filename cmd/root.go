@@ -12,6 +12,7 @@ import (
 func init() {
 	RootCmd.AddCommand(api.ServeCmd)
 	RootCmd.AddCommand(db.MigrateCmd)
+	RootCmd.AddCommand(db.SeedCmd)
 
 }
 

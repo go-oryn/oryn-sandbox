@@ -23,6 +23,8 @@ var Module = fx.Module(
 	// dependencies
 	fx.Provide(
 		ProvideDB,
+		ProvideMigrator,
+		ProvideSeeder,
 	),
 )
 
@@ -72,4 +74,64 @@ func ProvideDB(params ProvideDBParams) (*sql.DB, error) {
 	})
 
 	return db, nil
+}
+
+type ProvideMigratorParams struct {
+	fx.In
+	Config  *config.Config
+	Logger  *slog.Logger
+	DB      *sql.DB
+	Options []MigratorOption `group:"db-migrator-options"`
+}
+
+func ProvideMigrator(params ProvideMigratorParams) *Migrator {
+	return NewMigrator(params.Logger, params.DB, params.Options...)
+}
+
+func RunMigrations(command string, args ...string) fx.Option {
+	return fx.Invoke(
+		func(ctx context.Context, migrator *Migrator, config *config.Config) error {
+			return migrator.Run(ctx, config.GetString("db.driver"), command, args...)
+		},
+	)
+}
+
+func RunMigrationsAndShutdown(command string, args ...string) fx.Option {
+	return fx.Invoke(
+		func(ctx context.Context, migrator *Migrator, config *config.Config, shutdown fx.Shutdowner) error {
+			defer shutdown.Shutdown()
+
+			return migrator.Run(ctx, config.GetString("db.driver"), command, args...)
+		},
+	)
+}
+
+type ProvideSeederParams struct {
+	fx.In
+	Config *config.Config
+	Logger *slog.Logger
+	DB     *sql.DB
+	Seeds  []Seed `group:"db-seeder-seeds"`
+}
+
+func ProvideSeeder(params ProvideSeederParams) *Seeder {
+	return NewSeeder(params.Logger, params.DB, params.Seeds...)
+}
+
+func RunSeeds(names ...string) fx.Option {
+	return fx.Invoke(
+		func(ctx context.Context, seeder *Seeder) error {
+			return seeder.Run(ctx, names...)
+		},
+	)
+}
+
+func RunSeedsAndShutdown(names ...string) fx.Option {
+	return fx.Invoke(
+		func(ctx context.Context, seeder *Seeder, shutdown fx.Shutdowner) error {
+			defer shutdown.Shutdown()
+
+			return seeder.Run(ctx, names...)
+		},
+	)
 }
