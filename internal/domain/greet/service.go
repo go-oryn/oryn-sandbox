@@ -3,6 +3,7 @@ package greet
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/go-oryn/oryn-sandbox/pkg/config"
@@ -11,13 +12,14 @@ import (
 )
 
 type Service struct {
+	client    *http.Client
 	repo      *Repository
 	config    *config.Config
 	telemetry otel.Telemetry
 	counter   metric.Int64Counter
 }
 
-func NewService(repo *Repository, config *config.Config, telemetry otel.Telemetry) (*Service, error) {
+func NewService(client *http.Client, repo *Repository, config *config.Config, telemetry otel.Telemetry) (*Service, error) {
 	counter, err := telemetry.Meter().Int64Counter(
 		"greet.counter",
 		metric.WithDescription("Number of greets."),
@@ -28,6 +30,7 @@ func NewService(repo *Repository, config *config.Config, telemetry otel.Telemetr
 	}
 
 	return &Service{
+		client:    client,
 		repo:      repo,
 		config:    config,
 		telemetry: telemetry,
@@ -42,6 +45,17 @@ func (s *Service) Greet(ctx context.Context) string {
 	s.telemetry.Logger().DebugContext(ctx, "Greet() called")
 
 	s.counter.Add(ctx, 1)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://www.google.com", nil)
+	if err != nil {
+		s.telemetry.Logger().ErrorContext(ctx, "cannot prepare http request", err)
+	}
+
+	res, err := s.client.Do(req)
+	if err != nil {
+		s.telemetry.Logger().ErrorContext(ctx, "cannot send http request", err)
+	}
+	defer res.Body.Close()
 
 	dbTime, err := s.repo.Time(ctx)
 	if err != nil {

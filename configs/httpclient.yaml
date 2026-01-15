@@ -1,0 +1,2 @@
+httpclient:
+  timeout: 30s

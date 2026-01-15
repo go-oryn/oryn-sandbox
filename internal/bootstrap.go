@@ -14,6 +14,7 @@ import (
 	"github.com/go-oryn/oryn-sandbox/pkg/core"
 	"github.com/go-oryn/oryn-sandbox/pkg/db"
 	"github.com/go-oryn/oryn-sandbox/pkg/healthcheck"
+	"github.com/go-oryn/oryn-sandbox/pkg/httpclient"
 	"github.com/go-oryn/oryn-sandbox/pkg/httpserver"
 	"github.com/go-oryn/oryn-sandbox/pkg/worker"
 
@@ -24,6 +25,7 @@ var Bootstrapper = core.NewBootstrapper(
 	// shared modules
 	db.Module,
 	healthcheck.Module,
+	httpclient.Module,
 	httpserver.Module,
 	worker.Module,
 	// app modules
