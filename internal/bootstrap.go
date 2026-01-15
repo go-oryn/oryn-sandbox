@@ -48,6 +48,9 @@ func RunTest(tb testing.TB, options ...fx.Option) func() {
 
 	return Bootstrapper.WithContext(tb.Context()).RunTestApp(
 		tb,
+		// run db seeds
+		db.RunSeeds(),
+		// apply test options
 		fx.Options(options...),
 	)
 }
