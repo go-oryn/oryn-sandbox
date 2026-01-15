@@ -7,12 +7,20 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8889/health >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
     networks:
       - oryn-sandbox
     ports:
       - "8888:8888"
+      - "8889:8889"
     expose:
       - "8888"
+      - "8889"
     volumes:
       - .:/app
     env_file:

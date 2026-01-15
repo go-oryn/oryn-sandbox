@@ -1,0 +1,4 @@
+healthcheck:
+  httpserver:
+    address: ":8889"
+    path: "/health"
