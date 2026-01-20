@@ -9,6 +9,7 @@ import (
 	internalapi "github.com/go-oryn/oryn-sandbox/internal/api"
 	internaldomain "github.com/go-oryn/oryn-sandbox/internal/domain"
 	internalinfra "github.com/go-oryn/oryn-sandbox/internal/infra"
+	internalmcp "github.com/go-oryn/oryn-sandbox/internal/mcp"
 	internalworker "github.com/go-oryn/oryn-sandbox/internal/worker"
 	"github.com/go-oryn/oryn-sandbox/pkg/config"
 	"github.com/go-oryn/oryn-sandbox/pkg/core"
@@ -16,6 +17,7 @@ import (
 	"github.com/go-oryn/oryn-sandbox/pkg/healthcheck"
 	"github.com/go-oryn/oryn-sandbox/pkg/httpclient"
 	"github.com/go-oryn/oryn-sandbox/pkg/httpserver"
+	"github.com/go-oryn/oryn-sandbox/pkg/mcpserver"
 	"github.com/go-oryn/oryn-sandbox/pkg/worker"
 
 	"go.uber.org/fx"
@@ -27,10 +29,12 @@ var Bootstrapper = core.NewBootstrapper(
 	healthcheck.Module,
 	httpclient.Module,
 	httpserver.Module,
+	mcpserver.Module,
 	worker.Module,
 	// app modules
 	internalapi.Module,
 	internaldomain.Module,
+	internalmcp.Module,
 	internalinfra.Module,
 	internalworker.Module,
 	// app config

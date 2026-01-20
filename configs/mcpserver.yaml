@@ -1,0 +1,6 @@
+mcpserver:
+  transport:
+    type: streamable-http
+    options:
+      address: ":8890"
+      path: "/mcp"

@@ -22,7 +22,8 @@
       "Bash(ORYN_DATABASE_HOST=env-override go run:*)",
       "Bash(ORYN_DATABASE_HOST=env-value go run:*)",
       "Bash(go test:*)",
-      "Bash(go build:*)"
+      "Bash(go build:*)",
+      "Bash(go doc:*)"
     ],
     "deny": [],
     "ask": []

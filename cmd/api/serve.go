@@ -4,7 +4,7 @@ import (
 	"github.com/go-oryn/oryn-sandbox/internal"
 	"github.com/go-oryn/oryn-sandbox/pkg/healthcheck"
 	"github.com/go-oryn/oryn-sandbox/pkg/httpserver"
-	"github.com/go-oryn/oryn-sandbox/pkg/worker"
+	"github.com/go-oryn/oryn-sandbox/pkg/mcpserver"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +17,8 @@ var ServeCmd = &cobra.Command{
 			//fx.NopLogger,
 			healthcheck.RunServer(),
 			httpserver.RunServer(),
-			worker.RunWorkers(),
+			mcpserver.RunStreamableHTTPServer(),
+			//worker.RunWorkers(),
 		)
 	},
 }

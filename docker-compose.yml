@@ -9,7 +9,7 @@ services:
       context: .
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8889/health >/dev/null 2>&1 || exit 1"]
-      interval: 10s
+      interval: 60s
       timeout: 3s
       retries: 5
       start_period: 10s
@@ -18,9 +18,11 @@ services:
     ports:
       - "8888:8888"
       - "8889:8889"
+      - "8890:8890"
     expose:
       - "8888"
       - "8889"
+      - "8890"
     volumes:
       - .:/app
     env_file:
@@ -58,6 +60,22 @@ services:
       - GF_LOG_LEVEL=info
     volumes:
       - oryn-lgtm-data:/var/lib/grafana
+
+  oryn-mcp-inspector:
+    container_name: oryn-mcp-inspector
+    image: ghcr.io/modelcontextprotocol/inspector:latest
+    networks:
+      - oryn-sandbox
+    ports:
+      - "6274:6274"
+      - "6277:6277"
+    expose:
+      - "6274"
+      - "6277"
+    environment:
+      - HOST=0.0.0.0
+      - MCP_AUTO_OPEN_ENABLED=false
+      - DANGEROUSLY_OMIT_AUTH=true
 
 volumes:
   oryn-db-data:
