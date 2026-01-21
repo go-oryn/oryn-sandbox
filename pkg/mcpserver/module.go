@@ -35,9 +35,10 @@ func ProvideRegistry(params ProvideRegistryParams) *Registry {
 
 type ProvideServerParams struct {
 	fx.In
-	Logger   *slog.Logger
-	Config   *config.Config
-	Registry *Registry
+	Logger     *slog.Logger
+	Config     *config.Config
+	Propagator propagation.TextMapPropagator
+	Registry   *Registry
 }
 
 func ProvideServer(params ProvideServerParams) (*mcp.Server, error) {
@@ -54,10 +55,14 @@ func ProvideServer(params ProvideServerParams) (*mcp.Server, error) {
 		},
 	)
 
+	server.AddReceivingMiddleware(NewReceivingMiddleware(params.Propagator))
+
 	err := params.Registry.Register(server)
 	if err != nil {
 		return nil, err
 	}
+
+	server.AddReceivingMiddleware()
 
 	return server, nil
 }
